@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+
+      </p>
+      <section id="main">
+        <h2>{{ context['repo_list'] | length }} Vulnerable GitHub Repositories (of {{ context['repos'] }} => {{ context['pct'] }}%)</h2>
+        </p>
+        <h2>{{ context['issues'] }} Total Vulnerabilities</h1>
+        </p>
+        <ul class="repos">
+          {% if context['repo_list'] %}
+            {% for repo in context['repo_list'] %}
+              <li>
+                <p></p>
+                <a target="_blank" href="https://github.com/{{ context['myOrg'] }}/{{ repo.name }}/security/dependabot">{{ repo.name }}</a>
+                <p>Vulnerabilities: {{ repo.vulns }}</p>
+              </li>
+            {% endfor %}
+          {% else %}
+            <li>
+              <p>No vulnerable repositories.</p>
+            </li>          
+          {% endif %}
+        </ul>
+      </section>
+      
+    {% endif %}
+{% endblock %}

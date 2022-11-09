@@ -1,0 +1,19 @@
+<!doctype html>
+<title>GitHub Security Dashboard</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+<div class=page>
+    <header>
+        <h1>GitHub Security Dashboard</h1>
+    </header>
+    <div class=metanav>
+        {% if not session.logged_in %}
+            <a href="{{ url_for('login') }}">Log in</a>
+        {% else %}
+            <a href="{{ url_for('logout') }}">Log out</a>
+        {% endif %}
+    </div>
+    {% for message in get_flashed_messages() %}
+        <div class=flash>{{ message }}</div>
+    {% endfor %}
+    {% block body %}{% endblock %}
+</div>
