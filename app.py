@@ -1,12 +1,23 @@
 import os
 
-from flask import Flask, render_template, request, session, flash, redirect, url_for
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
+from flask import (Flask, flash, redirect, render_template, request, session, url_for)
 from python_graphql_client import GraphqlClient
 
-app = Flask(__name__)
-app.config.from_prefixed_env()
+credential = DefaultAzureCredential()
+kv_name = os.environ["KV_NAME"]
+kv_uri = f"https://{kv_name}.vault.azure.net"
+secret_client = SecretClient(vault_url=kv_uri, credential=credential)
 
-myOrg = app.config['GH_ORG']
+app = Flask(__name__)
+app.config.update(
+  SECRET_KEY=secret_client.get_secret("FLASK-SKEY").value,
+  USERNAME = secret_client.get_secret("USERNAME").value,
+  PASSWORD = secret_client.get_secret("PASSWORD").value,
+  GH_ORG = secret_client.get_secret("GH-ORG").value,
+  GH_PAT = secret_client.get_secret("GH-PAT").value
+)
 
 #
 # Root entry page
@@ -49,7 +60,7 @@ def vulns():
         'issues': list[1],
         'repos': list[2],
         'pct': list[3],
-        'myOrg': myOrg,
+        'myOrg': app.config['GH_ORG'],
     }
     return render_template("vulns.html", context=context)
 
@@ -89,7 +100,7 @@ query {
 """.replace(
         "AFTER", '"{}"'.format(after_cursor) if after_cursor else "null"
     ).replace(
-      "GHORG", myOrg
+      "GHORG", app.config['GH_ORG']
     )
 
 
